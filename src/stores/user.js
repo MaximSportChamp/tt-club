@@ -1,0 +1,118 @@
+// src/stores/user.js
+
+import { defineStore } from 'pinia'
+
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    // Уникальный идентификатор пользователя
+    id: 1,
+
+    // Отображаемое имя
+    name: 'Игрок',
+
+    // URL аватара
+    avatar: '/avatar.png',
+
+    // Список ID челленджей, в которых пользователь участвовал
+    participated: [],
+
+    // Список полученных бейджей
+    badges: ['Новичок'],
+
+    // Набранные очки
+    points: 0
+  }),
+
+  getters: {
+    // Текущий уровень по набранным очкам
+    currentLevel: (state) => {
+      const levels = [
+        { name: 'Новичок',    threshold:   0 },
+        { name: 'Любитель',    threshold:  50 },
+        { name: 'Атакующий',   threshold: 150 },
+        { name: 'Контролёр',   threshold: 300 },
+        { name: 'Маэстро',     threshold: 500 }
+      ]
+      let lvl = levels[0]
+      for (const l of levels) {
+        if (state.points >= l.threshold) {
+          lvl = l
+        }
+      }
+      return lvl.name
+    },
+
+    // Процент прогресса до следующего уровня
+    levelProgress: (state) => {
+      const levels = [
+        { name: 'Новичок',    threshold:   0 },
+        { name: 'Любитель',    threshold:  50 },
+        { name: 'Атакующий',   threshold: 150 },
+        { name: 'Контролёр',   threshold: 300 },
+        { name: 'Маэстро',     threshold: 500 }
+      ]
+      // Найти индекс текущего уровня
+      const idx = levels.findIndex((l) => state.points < l.threshold) - 1
+      const current = levels[Math.max(idx, 0)]
+      const next = levels[idx + 1] || current
+      // Если нет следующего уровня, прогресс 100%
+      if (!levels[idx + 1]) return 100
+      // Вычисляем относительный прогресс
+      return Math.min(
+        Math.max(
+          ((state.points - current.threshold) / (next.threshold - current.threshold)) * 100,
+          0
+        ),
+        100
+      )
+    },
+
+    // Количество бейджей, ещё не просмотренных пользователем
+    unreadBadges: (state) => {
+      // Здесь можно хранить структуру badge: { name, read }, 
+      // но пока предполагаем, что все бейджи — прочитаны
+      return 0
+    }
+  },
+
+  actions: {
+    /**
+     * Добавляет ID челленджа в participated и начисляет очки.
+     * @param {number} challengeId
+     */
+    addParticipation(challengeId) {
+      if (!this.participated.includes(challengeId)) {
+        this.participated.push(challengeId)
+        // Дать 10 очков за участие
+        this.points += 10
+      }
+    },
+
+    /**
+     * Добавляет новый бейдж, если его ещё нет.
+     * @param {string} badge
+     */
+    addBadge(badge) {
+      if (!this.badges.includes(badge)) {
+        this.badges.push(badge)
+      }
+    },
+
+    /**
+     * Начисляет указанное количество очков.
+     * @param {number} amount
+     */
+    addPoints(amount) {
+      this.points += amount
+    },
+
+    /**
+     * Сбрасывает все достижения (для тестирования).
+     */
+    resetProfile() {
+      this.participated = []
+      this.badges = []
+      this.points = 0
+    }
+  }
+})
