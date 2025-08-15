@@ -51,8 +51,7 @@
       <!-- Раскрываемая карточка челленджа -->
       <div v-if="showDetails" class="mt-3 rounded-lg border bg-white overflow-hidden">
         <!-- 16:9 превью, если есть -->
-        <div v-if="challenge?.videoUrl" class="relative w-full pb-[56.25%] bg-black">
-          <video class="absolute inset-0 w-full h-full object-cover" :src="challenge.videoUrl" controls />
+        <VideoPreview v-if="challenge?.videoUrl" :src="challenge.videoUrl" controls>
           <span
             v-if="challenge?.isNew"
             class="absolute top-2 left-2 text-xs font-semibold bg-red-600 text-white rounded px-2 py-1"
@@ -61,7 +60,7 @@
             v-if="challenge?.isHot"
             class="absolute top-2 right-2 text-xs font-semibold bg-orange-500 text-white rounded px-2 py-1"
           >HOT</span>
-        </div>
+        </VideoPreview>
 
         <div class="p-4">
           <h3 class="text-xl font-bold mb-1">{{ challenge?.title }}</h3>
@@ -139,6 +138,7 @@ import { useUserStore }       from '@/stores/user'
 import { useCountdown }       from '@/utils/countdown'
 
 import VoteList from '@/components/VoteList.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const route            = useRoute()
 const router           = useRouter()

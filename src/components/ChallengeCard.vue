@@ -1,41 +1,20 @@
 <!-- src/components/ChallengeCard.vue -->
 <template>
-  <div
-    class="w-full bg-white rounded-xl shadow-md overflow-hidden relative"
+  <Card
+    class="w-full shadow-md overflow-hidden relative"
     :class="ended ? 'opacity-60' : ''"
   >
     <!-- Превью 16:9 -->
-    <div class="relative w-full pb-[56.25%] bg-black">
-      <!-- 1) Постер: если есть и видео не запущено -->
-      <img
-        v-if="posterSrc && !isPlaying"
-        :src="posterSrc"
-        alt=""
-        class="absolute inset-0 w-full h-full object-cover"
-        loading="lazy"
-      />
-
-      <!-- 2) Видео-элемент: показываем когда играем или если постера нет -->
-      <video
-        v-else-if="challenge.videoUrl"
-        ref="videoEl"
-        class="absolute inset-0 w-full h-full object-cover"
-        :src="challenge.videoUrl"
-        :controls="isPlaying"
-        :muted="!isPlaying"
-        preload="metadata"
-        playsinline
-        @ended="onEnded"
-      ></video>
-
-      <!-- 3) Заглушка, если нет видео -->
-      <div
-        v-else
-        class="absolute inset-0 grid place-items-center text-gray-400 text-xs bg-gray-800"
-      >
-        нет видео
-      </div>
-
+    <VideoPreview
+      :src="challenge.videoUrl"
+      :poster="posterSrc"
+      :showVideo="isPlaying"
+      ref="preview"
+      :controls="isPlaying"
+      :muted="!isPlaying"
+      preload="metadata"
+      @ended="onEnded"
+    >
       <!-- Бейджи NEW / HOT -->
       <span
         v-if="challenge.isNew"
@@ -71,7 +50,7 @@
           <path fill="currentColor" d="M8 5v14l11-7z"/>
         </svg>
       </button>
-    </div>
+    </VideoPreview>
 
     <div class="p-4">
       <!-- Заголовок и описание -->
@@ -119,13 +98,15 @@
         {{ ended ? 'Завершено' : 'Перейти' }}
       </button>
     </div>
-  </div>
+  </Card>
 </template>
 
 <script setup>
 import { computed, ref, nextTick } from 'vue'
 import { useSubmissionStore } from '@/stores/submission'
 import { useCountdown } from '@/utils/countdown'
+import Card from './common/Card.vue'
+import VideoPreview from './common/VideoPreview.vue'
 
 const props = defineProps({
   challenge: { type: Object, required: true },
@@ -162,22 +143,23 @@ const ended = computed(() => isOver.value)
 
 /* Локальный старт/стоп видео */
 const isPlaying = ref(false)
-const videoEl = ref(null)
+const preview = ref(null)
 
 async function startPlayback() {
   if (!props.challenge?.videoUrl) return
   isPlaying.value = true
   await nextTick()
-  if (!videoEl.value) return
+  const vid = preview.value?.videoEl
+  if (!vid) return
   try {
-    videoEl.value.muted = false
-    const p = videoEl.value.play?.()
+    vid.muted = false
+    const p = vid.play?.()
     if (p && typeof p.then === 'function') await p
   } catch {
     // если браузер не даёт играть со звуком — пробуем без звука
     try {
-      videoEl.value.muted = true
-      const p2 = videoEl.value.play?.()
+      vid.muted = true
+      const p2 = vid.play?.()
       if (p2 && typeof p2.then === 'function') await p2
     } catch { /* no-op */ }
   }
