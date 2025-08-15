@@ -78,10 +78,8 @@ import { isVotingOpen } from '@/utils/vote'
 const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
 
-// Список челленджей
-const challenges = computed(() =>
-  challengeStore.challenges ?? challengeStore.items ?? challengeStore.list ?? []
-)
+// Список челленджей берём напрямую из стора
+const challenges = computed(() => challengeStore.challenges)
 
 // Тикер для текста «до …»
 const now = ref(Date.now())

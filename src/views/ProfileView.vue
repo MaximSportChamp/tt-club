@@ -65,7 +65,7 @@ const participatedCount = computed(() =>
 )
 
 const winsCount = computed(() =>
-  (challengeStore.challenges ?? []).filter(c => c.winnerId === user.id).length
+  challengeStore.challenges.filter(c => c.winnerId === user.id).length
 )
 
 /**
@@ -92,7 +92,7 @@ const userVideos = computed(() => {
  */
 function goUpload() {
   const lastFromUser = user.participated?.[user.participated.length - 1]
-  const fallback     = (challengeStore.challenges?.[0]?.id) ?? null
+  const fallback     = challengeStore.challenges[0]?.id ?? null
   const targetId     = lastFromUser ?? fallback
 
   if (targetId) {
