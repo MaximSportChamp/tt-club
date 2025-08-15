@@ -7,6 +7,7 @@ import ChallengeDetail     from '@/views/ChallengeDetail.vue'
 import UploadView          from '@/views/UploadView.vue'
 import VoteView            from '@/views/VoteView.vue'
 import ChallengeOverview   from '@/views/ChallengeOverview.vue' // ⬅️ новый пустой child
+import NotFoundView        from '@/views/NotFoundView.vue'
 
 const routes = [
   { path: '/',       component: HomeView,     name: 'Home' },
@@ -24,6 +25,7 @@ const routes = [
     ],
   },
   { path: '/profile', component: ProfileView, name: 'Profile' },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundView },
 ]
 
 export const router = createRouter({
