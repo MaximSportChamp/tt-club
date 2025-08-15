@@ -86,7 +86,7 @@
             <path d="M13 7H7v6h6V7z"></path>
             <path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm10 12H5V5h10v10z" clip-rule="evenodd"></path>
           </svg>
-          {{ challenge.participants ?? 0 }}
+          {{ formatNumber(challenge.participants ?? 0) }}
         </div>
 
         <div class="flex items-center">
@@ -94,7 +94,7 @@
           <svg class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H8l-4 4V5z"></path>
           </svg>
-          {{ challenge.views ?? 0 }}
+          {{ formatNumber(challenge.views ?? 0) }}
         </div>
 
         <div class="flex items-center">
@@ -102,7 +102,7 @@
           <svg class="w-4 h-4 mr-1 text-red-500" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"/>
           </svg>
-          {{ likesToShow }}
+          {{ formatNumber(likesToShow) }}
         </div>
       </div>
 
@@ -126,6 +126,7 @@
 import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useSubmissionStore } from '@/stores/submission'
 import { isVotingOpen } from '@/utils/vote'
+import { defaultLikes, formatNumber } from '@/utils/format'
 
 const props = defineProps({
   challenge: { type: Object, required: true },
@@ -138,9 +139,9 @@ const submissionStore = useSubmissionStore()
 
 /* Лайки: агрегированные или из challenge */
 const likesToShow = computed(() => {
-  if (!props.aggregateLikes) return props.challenge.likes ?? 0
+  if (!props.aggregateLikes) return defaultLikes(props.challenge)
   const list = submissionStore.byChallenge?.(props.challenge.id) ?? []
-  return list.reduce((sum, s) => sum + (s.likes || 0), 0)
+  return list.reduce((sum, s) => sum + defaultLikes(s), 0)
 })
 
 /* Постер: challenge.poster → poster первого сабмишна → null */

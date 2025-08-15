@@ -48,7 +48,7 @@
           <div class="text-sm text-gray-600 mb-4 flex flex-wrap gap-x-6 gap-y-2">
             <div>Участников: <span class="font-medium">{{ c.participants }}</span></div>
             <div>Просмотров: <span class="font-medium">{{ c.views }}</span></div>
-            <div>Лайков: <span class="font-medium">{{ aggLikes }}</span></div>
+            <div>Лайков: <span class="font-medium">{{ formatNumber(aggLikes) }}</span></div>
           </div>
 
           <div class="flex gap-4">
@@ -101,6 +101,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useChallengeStore }   from '@/stores/challenge'
 import { useSubmissionStore }  from '@/stores/submission'
 import { isVotingOpen }        from '@/utils/vote'
+import { defaultLikes, formatNumber } from '@/utils/format'
 
 const route  = useRoute()
 const router = useRouter()
@@ -113,8 +114,8 @@ const c = challengeStore.getById(Number(route.params.id))
 // Агрегированные лайки челленджа
 const aggLikes = computed(() => {
   const list = submissionStore.byChallenge?.(c?.id) ?? []
-  const sum  = list.reduce((acc, s) => acc + (s.likes || 0), 0)
-  return (c?.likes ?? 0) + sum
+  const sum  = list.reduce((acc, s) => acc + defaultLikes(s), 0)
+  return defaultLikes(c) + sum
 })
 
 // Компактный режим: только на /vote и /upload, если НЕ запросили ?full=1

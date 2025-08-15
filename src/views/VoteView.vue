@@ -70,7 +70,7 @@
           <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
             <div>Участников: <span class="font-medium">{{ challenge?.participants ?? 0 }}</span></div>
             <div>Просмотров: <span class="font-medium">{{ challenge?.views ?? 0 }}</span></div>
-            <div>Лайков: <span class="font-medium">{{ aggLikes }}</span></div>
+            <div>Лайков: <span class="font-medium">{{ formatNumber(aggLikes) }}</span></div>
           </div>
 
           <div class="flex gap-3">
@@ -137,6 +137,7 @@ import { useChallengeStore }  from '@/stores/challenge'
 import { useVotesStore }      from '@/stores/vote'
 import { useUserStore }       from '@/stores/user'
 import { isVotingOpen }       from '@/utils/vote'
+import { defaultLikes, formatNumber } from '@/utils/format'
 
 import VoteList from '@/components/VoteList.vue'
 
@@ -165,7 +166,7 @@ const hasNoVotes = computed(() => remainingVotes.value === 0)
 
 /* Сумма лайков по работам текущего челленджа */
 const aggLikes = computed(() =>
-  (entries.value ?? []).reduce((acc, s) => acc + (s.likes ?? 0), 0)
+  (entries.value ?? []).reduce((acc, s) => acc + defaultLikes(s), 0)
 )
 
 /* Сортировка */
@@ -173,7 +174,7 @@ const sort = ref('popular') // 'popular' | 'new'
 const sortedEntries = computed(() => {
   const list = entries.value.slice()
   return sort.value === 'popular'
-    ? list.sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
+    ? list.sort((a, b) => defaultLikes(b) - defaultLikes(a))
     : list.sort((a, b) => b.id - a.id) // «новые»
 })
 

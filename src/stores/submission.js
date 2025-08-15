@@ -1,5 +1,6 @@
 // src/stores/submission.js
 import { defineStore } from 'pinia'
+import { defaultLikes } from '@/utils/format'
 
 let _id = 1000
 const nextId = () => ++_id
@@ -43,7 +44,7 @@ export const useSubmissionStore = defineStore('submission', {
      */
     totalLikesByChallenge: (state) => (challengeId) =>
       state.submissions.reduce(
-        (acc, s) => acc + (+s.challengeId === +challengeId ? (s.likes || 0) : 0),
+        (acc, s) => acc + (+s.challengeId === +challengeId ? defaultLikes(s) : 0),
         0
       ),
 

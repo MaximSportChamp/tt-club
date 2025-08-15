@@ -49,7 +49,7 @@
           <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 mb-4">
             <span>Работ: <b class="text-gray-800">{{ entriesCount(c) }}</b></span>
             <span>Участников: <b class="text-gray-800">{{ c.participants ?? 0 }}</b></span>
-            <span>Лайков: <b class="text-gray-800">{{ likesSum(c) }}</b></span>
+            <span>Лайков: <b class="text-gray-800">{{ formatNumber(likesSum(c)) }}</b></span>
           </div>
 
           <!-- CTA -->
@@ -74,6 +74,7 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useChallengeStore } from '@/stores/challenge'
 import { useSubmissionStore } from '@/stores/submission'
 import { isVotingOpen } from '@/utils/vote'
+import { defaultLikes, formatNumber } from '@/utils/format'
 
 const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
@@ -102,7 +103,7 @@ function entriesCount(ch) {
 }
 function likesSum(ch) {
   const list = submissionStore.byChallenge?.(ch?.id) ?? []
-  return list.reduce((acc, s) => acc + (s.likes || 0), 0)
+  return list.reduce((acc, s) => acc + defaultLikes(s), 0)
 }
 
 // Текст «до …»

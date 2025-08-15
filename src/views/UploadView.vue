@@ -52,7 +52,7 @@
           <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
             <div>Участников: <span class="font-medium">{{ challenge?.participants ?? 0 }}</span></div>
             <div>Просмотров: <span class="font-medium">{{ challenge?.views ?? 0 }}</span></div>
-            <div>Лайков: <span class="font-medium">{{ aggLikes }}</span></div>
+            <div>Лайков: <span class="font-medium">{{ formatNumber(aggLikes) }}</span></div>
           </div>
 
           <div class="flex gap-3">
@@ -105,6 +105,7 @@ import { useUserStore }       from '@/stores/user'
 import { useSubmissionStore } from '@/stores/submission'
 import { useChallengeStore }  from '@/stores/challenge'
 import { isVotingOpen }       from '@/utils/vote'
+import { defaultLikes, formatNumber } from '@/utils/format'
 import VideoUploader from '@/components/VideoUploader.vue'
 
 const router = useRouter()
@@ -119,7 +120,7 @@ const challenge = computed(() => challengeStore.getById?.(cid.value) || null)
 
 // агрегированные лайки по работам — для карточки «Подробнее»
 const aggLikes = computed(() =>
-  (submissionStore.byChallenge?.(cid.value) ?? []).reduce((acc, s) => acc + (s.likes || 0), 0)
+  (submissionStore.byChallenge?.(cid.value) ?? []).reduce((acc, s) => acc + defaultLikes(s), 0)
 )
 
 // свернуто/развернуто
