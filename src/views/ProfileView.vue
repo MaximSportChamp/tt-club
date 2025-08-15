@@ -43,6 +43,12 @@ const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
 const router          = useRouter()
 
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+if (!isLoggedIn.value) {
+  alert('Пожалуйста, войдите, чтобы просматривать профиль')
+  router.replace({ name: 'Home' })
+}
+
 // Инициализация полей при первом заходе (если нужно)
 onMounted(() => {
   if (userStore.points === undefined) {

@@ -4,6 +4,8 @@ import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
+    // Флаг авторизации пользователя
+    isAuthenticated: false,
     // Уникальный идентификатор пользователя
     id: 1,
 
@@ -24,6 +26,8 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
+    // Статус входа пользователя
+    isLoggedIn: (state) => state.isAuthenticated,
     // Текущий уровень по набранным очкам
     currentLevel: (state) => {
       const levels = [
