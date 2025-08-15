@@ -65,7 +65,7 @@
             <path d="M13 7H7v6h6V7z"></path>
             <path fill-rule="evenodd" d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm10 12H5V5h10v10z" clip-rule="evenodd"></path>
           </svg>
-          {{ challenge.participants ?? 0 }}
+          {{ formatNumber(challenge.participants) }}
         </div>
 
         <div class="flex items-center">
@@ -73,7 +73,7 @@
           <svg class="w-4 h-4 mr-1" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H8l-4 4V5z"></path>
           </svg>
-          {{ challenge.views ?? 0 }}
+          {{ formatNumber(challenge.views) }}
         </div>
 
         <div class="flex items-center">
@@ -105,6 +105,7 @@
 import { computed, ref, nextTick } from 'vue'
 import { useSubmissionStore } from '@/stores/submission'
 import { useCountdown } from '@/utils/countdown'
+import { formatNumber } from '@/utils/format'
 import Card from './common/Card.vue'
 import VideoPreview from './common/VideoPreview.vue'
 
