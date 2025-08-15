@@ -105,7 +105,7 @@ import { useUserStore }       from '@/stores/user'
 import { useSubmissionStore } from '@/stores/submission'
 import { useChallengeStore }  from '@/stores/challenge'
 import { isVotingOpen }       from '@/utils/vote'
-import VideoUploader from '@/components/VideoUploader.vue'
+import VideoUploader from '@/components/common/VideoUploader.vue'
 
 const router = useRouter()
 const route  = useRoute()
