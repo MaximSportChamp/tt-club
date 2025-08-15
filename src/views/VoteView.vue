@@ -128,14 +128,14 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useSubmissionStore } from '@/stores/submission'
 import { useChallengeStore }  from '@/stores/challenge'
 import { useVotesStore }      from '@/stores/vote'
 import { useUserStore }       from '@/stores/user'
-import { isVotingOpen }       from '@/utils/vote'
+import { useCountdown }       from '@/utils/countdown'
 
 import VoteList from '@/components/VoteList.vue'
 import VideoPreview from '@/components/common/VideoPreview.vue'
@@ -152,12 +152,12 @@ const challenge  = computed(() => challengeStore.getById?.(cid.value) || null)
 const entries    = computed(() => submissionStore.byChallenge?.(cid.value) ?? [])
 
 /* Таймер «до …» в плашке статуса */
-const now = ref(Date.now())
-let timer = null
-onMounted(() => { timer = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (timer) clearInterval(timer) })
+// text: строка для отображения, isOver: флаг завершения
+const { text: voteUntilText, isOver } = useCountdown(
+  () => challenge.value?.voteEndsAt
+)
 
-const ended = computed(() => !isVotingOpen(challenge.value))
+const ended = computed(() => isOver.value)
 
 /* Осталось голосов и флаг «кончились» */
 const remainingVotes = computed(() => votesStore.remainingVotes?.(cid.value) ?? 3)
@@ -200,20 +200,6 @@ function goUpload() {
 
 /* Тогглер карточки (по умолчанию свернута) */
 const showDetails = ref(false)
-
-const voteUntilText = computed(() => {
-  if (!challenge.value?.voteEndsAt) return ''
-  const endMs = new Date(challenge.value.voteEndsAt).getTime()
-  if (!Number.isFinite(endMs)) return ''
-  const left = Math.max(0, endMs - now.value)
-  if (left === 0) return 'завершено'
-  const d = Math.floor(left / 86400000)
-  const h = Math.floor((left % 86400000) / 3600000)
-  const m = Math.floor((left % 3600000) / 60000)
-  const dateText = new Date(endMs).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
-})
 
 const votedIds = computed(() => votesStore.votedIds?.(cid.value) ?? [])
 </script>
