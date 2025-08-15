@@ -5,17 +5,12 @@
     <button @click="$router.back()" class="mb-4 text-blue-600">&larr; Назад</button>
 
     <!-- Большая карточка челленджа скрывается, когда isCompact === true -->
-    <div v-if="!isCompact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+    <Card v-if="!isCompact" class="shadow-md overflow-hidden mb-6">
       <!-- Адаптив: на md+ видео слева, панель справа -->
       <div class="grid gap-6 md:grid-cols-3">
         <!-- Видео 16:9 -->
         <div class="md:col-span-2">
-          <div class="relative w-full pb-[56.25%] bg-black">
-            <video
-              class="absolute inset-0 w-full h-full object-cover"
-              :src="c.videoUrl"
-              controls
-            />
+          <VideoPreview :src="c.videoUrl" controls>
             <!-- Бейджи -->
             <span
               v-if="c.isNew"
@@ -25,7 +20,7 @@
               v-else-if="c.isHot"
               class="absolute top-4 left-4 bg-yellow-500 text-white text-xs font-bold uppercase px-2 py-1 rounded"
             >HOT</span>
-          </div>
+          </VideoPreview>
         </div>
 
         <!-- Правая панель (sticky на md+) -->
@@ -84,7 +79,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </Card>
 
     <!-- Нижняя зона:
          - VoteView ВСЕГДА тут
@@ -101,6 +96,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { useChallengeStore }   from '@/stores/challenge'
 import { useSubmissionStore }  from '@/stores/submission'
 import { isVotingOpen }        from '@/utils/vote'
+import Card from '@/components/common/Card.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const route  = useRoute()
 const router = useRouter()
