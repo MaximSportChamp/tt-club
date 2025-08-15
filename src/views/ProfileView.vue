@@ -32,6 +32,7 @@ import { useRouter }          from 'vue-router'
 import { useUserStore }       from '@/stores/user'
 import { useChallengeStore }  from '@/stores/challenge'
 import { useSubmissionStore } from '@/stores/submission'
+import { defaultLikes }       from '@/utils/format'
 
 import ProfileHeader   from '@/components/ProfileHeader.vue'
 import StatsBlock      from '@/components/ProfileStats.vue'
@@ -77,7 +78,7 @@ const userVideos = computed(() => {
     id: s.id,
     title: s.title,
     videoUrl: s.videoUrl,
-    likes: s.likes,
+    likes: defaultLikes(s),
     challengeId: s.challengeId,
   }))
 })
