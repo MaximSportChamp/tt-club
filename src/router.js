@@ -7,7 +7,9 @@ import ChallengeDetail     from '@/views/ChallengeDetail.vue'
 import UploadView          from '@/views/UploadView.vue'
 import VoteView            from '@/views/VoteView.vue'
 import ChallengeOverview   from '@/views/ChallengeOverview.vue' // ⬅️ новый пустой child
+import NotFoundView        from '@/views/NotFoundView.vue'
 import { useUserStore }    from '@/stores/user'
+
 
 const routes = [
   { path: '/',       component: HomeView,     name: 'Home' },
@@ -24,6 +26,8 @@ const routes = [
       { path: 'vote',   component: VoteView,    props: true,    name: 'ChallengeVote', meta: { compactHero: true } },
     ],
   },
+
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundView },
   { path: '/profile', component: ProfileView, name: 'Profile', meta: { requiresAuth: true } },
 ]
 
