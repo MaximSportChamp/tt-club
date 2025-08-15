@@ -3,23 +3,14 @@
     <h1 class="text-xl font-bold mb-4">Идёт голосование</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-      <div
+      <Card
         v-for="c in challenges"
         :key="c.id"
-        class="w-full max-w-[420px] bg-white rounded-xl shadow-md overflow-hidden"
+        class="w-full max-w-[420px] shadow-md overflow-hidden"
       >
         <!-- Превью: постер 16:9 -->
-        <div class="relative w-full pb-[56.25%] bg-gray-200">
-          <img
-            v-if="posterOf(c)"
-            :src="posterOf(c)"
-            alt=""
-            class="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div v-else class="absolute inset-0 grid place-items-center text-gray-400 text-xs">
-            нет постера
-          </div>
+        <VideoPreview :poster="posterOf(c)">
+          <template #fallback>нет постера</template>
 
           <!-- NEW / HOT -->
           <span
@@ -38,7 +29,7 @@
           >
             {{ voteUntilText(c) }}
           </div>
-        </div>
+        </VideoPreview>
 
         <!-- Тело карточки -->
         <div class="p-4">
@@ -48,7 +39,7 @@
           <!-- Метрики -->
           <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 mb-4">
             <span>Работ: <b class="text-gray-800">{{ entriesCount(c) }}</b></span>
-            <span>Участников: <b class="text-gray-800">{{ c.participants ?? 0 }}</b></span>
+            <span>Участников: <b class="text-gray-800">{{ formatNumber(c.participants) }}</b></span>
             <span>Лайков: <b class="text-gray-800">{{ likesSum(c) }}</b></span>
           </div>
 
@@ -64,30 +55,25 @@
             {{ ctaLabel(c) }}
           </router-link>
         </div>
-      </div>
+      </Card>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, watch } from 'vue'
 import { useChallengeStore } from '@/stores/challenge'
 import { useSubmissionStore } from '@/stores/submission'
-import { isVotingOpen } from '@/utils/vote'
+import { useCountdown } from '@/utils/countdown'
+import { formatNumber } from '@/utils/format'
+import Card from '@/components/common/Card.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
 
-// Список челленджей
-const challenges = computed(() =>
-  challengeStore.challenges ?? challengeStore.items ?? challengeStore.list ?? []
-)
-
-// Тикер для текста «до …»
-const now = ref(Date.now())
-let timer = null
-onMounted(() => { timer = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (timer) clearInterval(timer) })
+// Список челленджей берём напрямую из стора
+const challenges = computed(() => challengeStore.challenges)
 
 // Постер
 function posterOf(ch) {
@@ -105,25 +91,26 @@ function likesSum(ch) {
   return list.reduce((acc, s) => acc + (s.likes || 0), 0)
 }
 
-// Текст «до …»
-function voteUntilText(ch) {
-  if (!ch?.voteEndsAt) return ''
-  const endMs = new Date(ch.voteEndsAt).getTime()
-  if (!isFinite(endMs)) return ''
-  const left = Math.max(0, endMs - now.value)
-  if (left === 0) return 'завершено'
+// Для каждого челленджа создаём countdown; храним в Map
+const countdowns = new Map()
+watch(challenges, list => {
+  list.forEach(ch => {
+    if (ch.voteEndsAt && !countdowns.has(ch.id)) {
+      countdowns.set(ch.id, useCountdown(() => ch.voteEndsAt))
+    }
+  })
+}, { immediate: true })
 
-  const d = Math.floor(left / 86400000)
-  const h = Math.floor((left % 86400000) / 3600000)
-  const m = Math.floor((left % 3600000) / 60000)
-  const dateText = new Date(endMs).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
+function voteUntilText(ch) {
+  return countdowns.get(ch.id)?.text.value ?? ''
+}
+function voteEnded(ch) {
+  return countdowns.get(ch.id)?.isOver.value ?? false
 }
 
 // Состояния CTA
 function ctaDisabled(ch) {
-  return !isVotingOpen(ch) || entriesCount(ch) === 0
+  return voteEnded(ch) || entriesCount(ch) === 0
 }
 function ctaClass(ch) {
   return ctaDisabled(ch)
@@ -131,12 +118,12 @@ function ctaClass(ch) {
     : 'bg-blue-600 text-white hover:bg-blue-700'
 }
 function ctaLabel(ch) {
-  if (!isVotingOpen(ch)) return 'Завершено'
+  if (voteEnded(ch)) return 'Завершено'
   if (entriesCount(ch) === 0) return 'Нет работ'
   return 'К голосованию'
 }
 function ctaTitle(ch) {
-  if (!isVotingOpen(ch)) return 'Голосование завершено'
+  if (voteEnded(ch)) return 'Голосование завершено'
   if (entriesCount(ch) === 0) return 'Нет загруженных работ'
   return ''
 }

@@ -14,6 +14,6 @@
 </template>
 
 <script setup>
-import Header    from '@/components/Header.vue'
-import BottomNav from '@/components/BottomNav.vue'
+import Header    from '@/components/common/Header.vue'
+import BottomNav from '@/components/common/BottomNav.vue'
 </script>

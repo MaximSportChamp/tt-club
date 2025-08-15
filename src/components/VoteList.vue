@@ -1,30 +1,25 @@
 <template>
   <div>
     <!-- пустое состояние -->
-    <div
-      v-if="!entries || !entries.length"
-      class="bg-white rounded-xl shadow p-6 text-gray-500"
-    >
+    <Card v-if="!entries || !entries.length" class="p-6 text-gray-500">
       Пока нет работ для голосования.
-    </div>
+    </Card>
 
     <!-- список работ -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <article
+      <Card
+        tag="article"
         v-for="e in entries"
         :key="e.id"
-        class="bg-white rounded-xl shadow overflow-hidden"
+        class="overflow-hidden"
       >
         <!-- превью видео 16:9 -->
-        <div class="relative w-full pb-[56.25%] bg-black">
-          <video
-            class="absolute inset-0 w-full h-full object-cover"
-            :src="e.videoUrl"
-            controls
-            muted
-            playsinline
-          />
-        </div>
+        <VideoPreview
+          :src="e.videoUrl"
+          controls
+          muted
+          playsinline
+        />
 
         <div class="p-4">
           <h4 class="text-lg font-semibold mb-2 line-clamp-1">
@@ -61,12 +56,14 @@
             </button>
           </div>
         </div>
-      </article>
+      </Card>
     </div>
   </div>
 </template>
 
 <script setup>
+import Card from './common/Card.vue'
+import VideoPreview from './common/VideoPreview.vue'
 defineProps({
   entries:  { type: Array,   default: () => [] },
   hasVoted: { type: Boolean, default: false },  // общий дизейбл

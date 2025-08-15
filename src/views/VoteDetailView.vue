@@ -6,8 +6,12 @@
     </div>
 
     <div class="grid grid-cols-1 gap-6">
-      <div v-for="video in participants" :key="video.id" class="bg-white p-4 rounded shadow">
-        <video :src="video.url" controls class="w-full h-auto rounded"></video>
+      <Card
+        v-for="video in participants"
+        :key="video.id"
+        class="p-4 rounded"
+      >
+        <VideoPreview :src="video.url" controls />
         <button
           class="mt-2 px-4 py-2 bg-accent text-white rounded w-full"
           @click="vote(video.id)"
@@ -15,7 +19,7 @@
         >
           ❤️ {{ video.votes }}
         </button>
-      </div>
+      </Card>
     </div>
   </div>
 </template>
@@ -24,6 +28,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchChallenge, fetchChallengeVideos, voteVideo } from '../utils/api';
+import Card from '@/components/common/Card.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const route = useRoute();
 const challengeId = route.params.id;
