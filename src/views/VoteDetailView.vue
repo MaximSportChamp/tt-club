@@ -27,8 +27,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { fetchChallenge, fetchChallengeVideos, voteVideo } from '../utils/api';
 import Card from '@/components/common/Card.vue'
 import VideoPreview from '@/components/common/VideoPreview.vue'
+
 const route = useRoute();
 const challengeId = route.params.id;
 const challenge = ref({});
@@ -36,18 +38,18 @@ const participants = ref([]);
 const voted = ref(false);
 
 onMounted(async () => {
-  // fetch challenge info
-  challenge.value = await fetch(`/api/challenges/${challengeId}`).then(r => r.json());
-  participants.value = await fetch(`/api/challenges/${challengeId}/videos`).then(r => r.json());
+  challenge.value = await fetchChallenge(challengeId);
+  participants.value = await fetchChallengeVideos(challengeId);
 });
 
-function vote(videoId) {
-  fetch(`/api/videos/${videoId}/vote`, { method: 'POST' })
-    .then(() => {
-      voted.value = true;
-      // локально увеличим счётчик
-      const vid = participants.value.find(v => v.id === videoId);
-      vid.votes++;
-    });
+async function vote(videoId) {
+  try {
+    await voteVideo(videoId);
+    voted.value = true;
+    const vid = participants.value.find(v => v.id === videoId);
+    vid.votes++;
+  } catch (err) {
+    // Ошибка уже залогирована в api.ts, но можем дополнительно обработать
+  }
 }
 </script>
