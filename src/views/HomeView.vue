@@ -12,55 +12,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted }    from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter }         from 'vue-router'
 import ChallengeCard         from '@/components/ChallengeCard.vue'
 import { useChallengeStore } from '@/stores/challenge'
 
-const store      = useChallengeStore()
-const challenges = ref([])
+const challengeStore = useChallengeStore()
+const challenges     = computed(() => challengeStore.challenges)
 
 const router = useRouter()
 
 onMounted(async () => {
-  if (typeof store.fetchChallenges === 'function') {
-    await store.fetchChallenges()
-  }
-  challenges.value = store.challenges
-
-  if (!challenges.value.length) {
-    challenges.value = [
-      {
-        id: 1,
-        title: 'Тестовый челлендж 1',
-        description: 'Описание тестового челленджа №1',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        isNew: true,
-        participants: 12,
-        views: 345,
-        likes: 67,
-      },
-      {
-        id: 2,
-        title: 'Тестовый челлендж 2',
-        description: 'Описание тестового челленджа №2',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        isNew: false,
-        participants: 8,
-        views: 210,
-        likes: 54,
-      },
-      {
-        id: 3,
-        title: 'Тестовый челлендж 3',
-        description: 'Ещё один тестовый челлендж',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        isNew: false,
-        participants: 5,
-        views: 100,
-        likes: 20,
-      },
-    ]
+  if (typeof challengeStore.fetchChallenges === 'function') {
+    await challengeStore.fetchChallenges()
   }
 })
 

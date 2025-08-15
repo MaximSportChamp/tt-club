@@ -1,9 +1,8 @@
 // src/stores/challenge.js
 import { defineStore } from 'pinia'
 
-export const useChallengeStore = defineStore('challenge', {
-  state: () => ({
-    challenges: [
+// Начальные данные для стора. Их можно заменить загрузкой с сервера.
+const initialChallenges = [
       {
         id: 1,
         title: 'Трюк №1',
@@ -40,12 +39,22 @@ export const useChallengeStore = defineStore('challenge', {
         videoUrl: '/videos/trick3.mp4',
         // можно без постера и даты — поля просто опусти
       },
-    ],
+    ]
+
+export const useChallengeStore = defineStore('challenge', {
+  state: () => ({
+    // Стор изначально содержит исходные данные
+    challenges: initialChallenges,
   }),
   getters: {
     getById: (state) => (id) => state.challenges.find(c => c.id === Number(id)) || null,
   },
   actions: {
+    // В будущем данные могут подгружаться с сервера.
+    // Сейчас просто присваиваем initialChallenges, чтобы стор можно было сбросить.
+    async fetchChallenges() {
+      this.challenges = initialChallenges
+    },
     addParticipant(id) {
       const c = this.getById(id)
       if (c) c.participants++

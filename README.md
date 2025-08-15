@@ -7,3 +7,7 @@ Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://
 ## Components
 
 The `src/components/common/` directory contains reusable components shared across different parts of the application.
+
+## Documentation
+Detailed documentation, including style guides and user scenarios, can be found in [docs/](docs/README.md).
+
