@@ -39,7 +39,7 @@
           <!-- Метрики -->
           <div class="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs text-gray-600 mb-4">
             <span>Работ: <b class="text-gray-800">{{ entriesCount(c) }}</b></span>
-            <span>Участников: <b class="text-gray-800">{{ c.participants ?? 0 }}</b></span>
+            <span>Участников: <b class="text-gray-800">{{ formatNumber(c.participants) }}</b></span>
             <span>Лайков: <b class="text-gray-800">{{ likesSum(c) }}</b></span>
           </div>
 
@@ -65,6 +65,7 @@ import { computed, watch } from 'vue'
 import { useChallengeStore } from '@/stores/challenge'
 import { useSubmissionStore } from '@/stores/submission'
 import { useCountdown } from '@/utils/countdown'
+import { formatNumber } from '@/utils/format'
 import Card from '@/components/common/Card.vue'
 import VideoPreview from '@/components/common/VideoPreview.vue'
 
