@@ -3,23 +3,14 @@
     <h1 class="text-xl font-bold mb-4">Идёт голосование</h1>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
-      <div
+      <Card
         v-for="c in challenges"
         :key="c.id"
-        class="w-full max-w-[420px] bg-white rounded-xl shadow-md overflow-hidden"
+        class="w-full max-w-[420px] shadow-md overflow-hidden"
       >
         <!-- Превью: постер 16:9 -->
-        <div class="relative w-full pb-[56.25%] bg-gray-200">
-          <img
-            v-if="posterOf(c)"
-            :src="posterOf(c)"
-            alt=""
-            class="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
-          />
-          <div v-else class="absolute inset-0 grid place-items-center text-gray-400 text-xs">
-            нет постера
-          </div>
+        <VideoPreview :poster="posterOf(c)">
+          <template #fallback>нет постера</template>
 
           <!-- NEW / HOT -->
           <span
@@ -38,7 +29,7 @@
           >
             {{ voteUntilText(c) }}
           </div>
-        </div>
+        </VideoPreview>
 
         <!-- Тело карточки -->
         <div class="p-4">
@@ -64,7 +55,7 @@
             {{ ctaLabel(c) }}
           </router-link>
         </div>
-      </div>
+      </Card>
     </div>
   </div>
 </template>
@@ -74,6 +65,8 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useChallengeStore } from '@/stores/challenge'
 import { useSubmissionStore } from '@/stores/submission'
 import { isVotingOpen } from '@/utils/vote'
+import Card from '@/components/common/Card.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
