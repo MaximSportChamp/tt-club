@@ -49,8 +49,8 @@
           <p class="text-gray-600 mb-3">{{ challenge?.description }}</p>
 
           <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
-            <div>Участников: <span class="font-medium">{{ challenge?.participants ?? 0 }}</span></div>
-            <div>Просмотров: <span class="font-medium">{{ challenge?.views ?? 0 }}</span></div>
+            <div>Участников: <span class="font-medium">{{ formatNumber(challenge?.participants) }}</span></div>
+            <div>Просмотров: <span class="font-medium">{{ formatNumber(challenge?.views) }}</span></div>
             <div>Лайков: <span class="font-medium">{{ aggLikes }}</span></div>
           </div>
 
@@ -104,6 +104,7 @@ import { useUserStore }       from '@/stores/user'
 import { useSubmissionStore } from '@/stores/submission'
 import { useChallengeStore }  from '@/stores/challenge'
 import { useCountdown }       from '@/utils/countdown'
+import { formatNumber }       from '@/utils/format'
 import VideoPreview from '@/components/common/VideoPreview.vue'
 import VideoUploader from '@/components/common/VideoUploader.vue'
 
