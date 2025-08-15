@@ -1,41 +1,20 @@
 <!-- src/components/ChallengeCard.vue -->
 <template>
-  <div
-    class="w-full bg-white rounded-xl shadow-md overflow-hidden relative"
+  <Card
+    class="w-full shadow-md overflow-hidden relative"
     :class="ended ? 'opacity-60' : ''"
   >
     <!-- Превью 16:9 -->
-    <div class="relative w-full pb-[56.25%] bg-black">
-      <!-- 1) Постер: если есть и видео не запущено -->
-      <img
-        v-if="posterSrc && !isPlaying"
-        :src="posterSrc"
-        alt=""
-        class="absolute inset-0 w-full h-full object-cover"
-        loading="lazy"
-      />
-
-      <!-- 2) Видео-элемент: показываем когда играем или если постера нет -->
-      <video
-        v-else-if="challenge.videoUrl"
-        ref="videoEl"
-        class="absolute inset-0 w-full h-full object-cover"
-        :src="challenge.videoUrl"
-        :controls="isPlaying"
-        :muted="!isPlaying"
-        preload="metadata"
-        playsinline
-        @ended="onEnded"
-      ></video>
-
-      <!-- 3) Заглушка, если нет видео -->
-      <div
-        v-else
-        class="absolute inset-0 grid place-items-center text-gray-400 text-xs bg-gray-800"
-      >
-        нет видео
-      </div>
-
+    <VideoPreview
+      :src="challenge.videoUrl"
+      :poster="posterSrc"
+      :showVideo="isPlaying"
+      ref="preview"
+      :controls="isPlaying"
+      :muted="!isPlaying"
+      preload="metadata"
+      @ended="onEnded"
+    >
       <!-- Бейджи NEW / HOT -->
       <span
         v-if="challenge.isNew"
@@ -71,7 +50,7 @@
           <path fill="currentColor" d="M8 5v14l11-7z"/>
         </svg>
       </button>
-    </div>
+    </VideoPreview>
 
     <div class="p-4">
       <!-- Заголовок и описание -->
@@ -119,13 +98,15 @@
         {{ ended ? 'Завершено' : 'Перейти' }}
       </button>
     </div>
-  </div>
+  </Card>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { useSubmissionStore } from '@/stores/submission'
-import { isVotingOpen } from '@/utils/vote'
+import { useCountdown } from '@/utils/countdown'
+import Card from './common/Card.vue'
+import VideoPreview from './common/VideoPreview.vue'
 
 const props = defineProps({
   challenge: { type: Object, required: true },
@@ -150,53 +131,35 @@ const posterSrc = computed(() => {
   return first?.poster || null
 })
 
-/* Таймер «до …» */
-const now = ref(Date.now())
-let t = null
-onMounted(() => { t = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (t) clearInterval(t) })
+/* Таймер «до …»: используем утилиту useCountdown */
+const hasDeadline = computed(() => !!props.challenge?.voteEndsAt)
+// text: «до 01.01.2025 · 1д 2ч», isOver: true после завершения
+const { text: deadlineText, isOver } = useCountdown(
+  () => props.challenge?.voteEndsAt
+)
 
-const endMs = computed(() => {
-  const v = props.challenge?.voteEndsAt
-  const ms = v ? new Date(v).getTime() : 0
-  return Number.isFinite(ms) ? ms : 0
-})
-const hasDeadline = computed(() => !!endMs.value)
-const left = computed(() => Math.max(0, endMs.value - now.value))
-const endedByTime = computed(() => hasDeadline.value && left.value === 0)
-
-/* Состояние «завершено» с учётом хелпера */
-const ended = computed(() => !isVotingOpen(props.challenge) || endedByTime.value)
-
-const deadlineText = computed(() => {
-  if (!hasDeadline.value) return ''
-  if (ended.value) return 'завершено'
-  const d = Math.floor(left.value / 86400000)
-  const h = Math.floor((left.value % 86400000) / 3600000)
-  const m = Math.floor((left.value % 3600000) / 60000)
-  const dateText = new Date(endMs.value).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
-})
+/* Состояние «завершено» */
+const ended = computed(() => isOver.value)
 
 /* Локальный старт/стоп видео */
 const isPlaying = ref(false)
-const videoEl = ref(null)
+const preview = ref(null)
 
 async function startPlayback() {
   if (!props.challenge?.videoUrl) return
   isPlaying.value = true
   await nextTick()
-  if (!videoEl.value) return
+  const vid = preview.value?.videoEl
+  if (!vid) return
   try {
-    videoEl.value.muted = false
-    const p = videoEl.value.play?.()
+    vid.muted = false
+    const p = vid.play?.()
     if (p && typeof p.then === 'function') await p
   } catch {
     // если браузер не даёт играть со звуком — пробуем без звука
     try {
-      videoEl.value.muted = true
-      const p2 = videoEl.value.play?.()
+      vid.muted = true
+      const p2 = vid.play?.()
       if (p2 && typeof p2.then === 'function') await p2
     } catch { /* no-op */ }
   }

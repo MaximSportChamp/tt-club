@@ -51,8 +51,7 @@
       <!-- Раскрываемая карточка челленджа -->
       <div v-if="showDetails" class="mt-3 rounded-lg border bg-white overflow-hidden">
         <!-- 16:9 превью, если есть -->
-        <div v-if="challenge?.videoUrl" class="relative w-full pb-[56.25%] bg-black">
-          <video class="absolute inset-0 w-full h-full object-cover" :src="challenge.videoUrl" controls />
+        <VideoPreview v-if="challenge?.videoUrl" :src="challenge.videoUrl" controls>
           <span
             v-if="challenge?.isNew"
             class="absolute top-2 left-2 text-xs font-semibold bg-red-600 text-white rounded px-2 py-1"
@@ -61,15 +60,15 @@
             v-if="challenge?.isHot"
             class="absolute top-2 right-2 text-xs font-semibold bg-orange-500 text-white rounded px-2 py-1"
           >HOT</span>
-        </div>
+        </VideoPreview>
 
         <div class="p-4">
           <h3 class="text-xl font-bold mb-1">{{ challenge?.title }}</h3>
           <p class="text-gray-600 mb-3">{{ challenge?.description }}</p>
 
           <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600 mb-4">
-            <div>Участников: <span class="font-medium">{{ challenge?.participants ?? 0 }}</span></div>
-            <div>Просмотров: <span class="font-medium">{{ challenge?.views ?? 0 }}</span></div>
+            <div>Участников: <span class="font-medium">{{ formatNumber(challenge?.participants) }}</span></div>
+            <div>Просмотров: <span class="font-medium">{{ formatNumber(challenge?.views) }}</span></div>
             <div>Лайков: <span class="font-medium">{{ aggLikes }}</span></div>
           </div>
 
@@ -129,16 +128,18 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useSubmissionStore } from '@/stores/submission'
 import { useChallengeStore }  from '@/stores/challenge'
 import { useVotesStore }      from '@/stores/vote'
 import { useUserStore }       from '@/stores/user'
-import { isVotingOpen }       from '@/utils/vote'
+import { useCountdown }       from '@/utils/countdown'
+import { formatNumber }       from '@/utils/format'
 
 import VoteList from '@/components/VoteList.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const route            = useRoute()
 const router           = useRouter()
@@ -152,12 +153,12 @@ const challenge  = computed(() => challengeStore.getById?.(cid.value) || null)
 const entries    = computed(() => submissionStore.byChallenge?.(cid.value) ?? [])
 
 /* Таймер «до …» в плашке статуса */
-const now = ref(Date.now())
-let timer = null
-onMounted(() => { timer = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (timer) clearInterval(timer) })
+// text: строка для отображения, isOver: флаг завершения
+const { text: voteUntilText, isOver } = useCountdown(
+  () => challenge.value?.voteEndsAt
+)
 
-const ended = computed(() => !isVotingOpen(challenge.value))
+const ended = computed(() => isOver.value)
 
 /* Осталось голосов и флаг «кончились» */
 const remainingVotes = computed(() => votesStore.remainingVotes?.(cid.value) ?? 3)
@@ -200,20 +201,6 @@ function goUpload() {
 
 /* Тогглер карточки (по умолчанию свернута) */
 const showDetails = ref(false)
-
-const voteUntilText = computed(() => {
-  if (!challenge.value?.voteEndsAt) return ''
-  const endMs = new Date(challenge.value.voteEndsAt).getTime()
-  if (!Number.isFinite(endMs)) return ''
-  const left = Math.max(0, endMs - now.value)
-  if (left === 0) return 'завершено'
-  const d = Math.floor(left / 86400000)
-  const h = Math.floor((left % 86400000) / 3600000)
-  const m = Math.floor((left % 3600000) / 60000)
-  const dateText = new Date(endMs).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
-})
 
 const votedIds = computed(() => votesStore.votedIds?.(cid.value) ?? [])
 </script>

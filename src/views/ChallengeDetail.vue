@@ -5,17 +5,12 @@
     <button @click="$router.back()" class="mb-4 text-blue-600">&larr; Назад</button>
 
     <!-- Большая карточка челленджа скрывается, когда isCompact === true -->
-    <div v-if="!isCompact" class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+    <Card v-if="!isCompact" class="shadow-md overflow-hidden mb-6">
       <!-- Адаптив: на md+ видео слева, панель справа -->
       <div class="grid gap-6 md:grid-cols-3">
         <!-- Видео 16:9 -->
         <div class="md:col-span-2">
-          <div class="relative w-full pb-[56.25%] bg-black">
-            <video
-              class="absolute inset-0 w-full h-full object-cover"
-              :src="c.videoUrl"
-              controls
-            />
+          <VideoPreview :src="c.videoUrl" controls>
             <!-- Бейджи -->
             <span
               v-if="c.isNew"
@@ -25,7 +20,7 @@
               v-else-if="c.isHot"
               class="absolute top-4 left-4 bg-yellow-500 text-white text-xs font-bold uppercase px-2 py-1 rounded"
             >HOT</span>
-          </div>
+          </VideoPreview>
         </div>
 
         <!-- Правая панель (sticky на md+) -->
@@ -84,7 +79,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </Card>
 
     <!-- Нижняя зона:
          - VoteView ВСЕГДА тут
@@ -100,7 +95,9 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useChallengeStore }   from '@/stores/challenge'
 import { useSubmissionStore }  from '@/stores/submission'
-import { isVotingOpen }        from '@/utils/vote'
+import { useCountdown }        from '@/utils/countdown'
+import Card from '@/components/common/Card.vue'
+import VideoPreview from '@/components/common/VideoPreview.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -151,25 +148,8 @@ function go(tab) {
 }
 
 /* -------- Голосование до ... / «завершено» -------- */
-const now = ref(Date.now())
-let timer = null
-onMounted(() => { timer = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (timer) clearInterval(timer) })
-
-const ended = computed(() => !isVotingOpen(c))
-
-const voteUntilText = computed(() => {
-  if (!c?.voteEndsAt) return ''
-  const endMs = new Date(c.voteEndsAt).getTime()
-  if (!Number.isFinite(endMs)) return ''
-  const left = Math.max(0, endMs - now.value)
-  if (left === 0) return 'завершено'
-  const d = Math.floor(left / 86400000)
-  const h = Math.floor((left % 86400000) / 3600000)
-  const m = Math.floor((left % 3600000) / 60000)
-  const dateText = new Date(endMs).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
-})
+// text: строка для отображения, isOver: флаг завершения
+const { text: voteUntilText, isOver } = useCountdown(() => c?.voteEndsAt)
+const ended = computed(() => isOver.value)
 </script>
 

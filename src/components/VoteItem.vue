@@ -1,13 +1,7 @@
 <template>
-  <div class="bg-white rounded-xl shadow-md overflow-hidden">
+  <Card class="shadow-md overflow-hidden">
     <!-- Видео 16:9 -->
-    <div class="relative w-full pb-[56.25%] bg-black">
-      <video
-        :src="item.videoUrl"
-        class="absolute inset-0 w-full h-full object-cover"
-        muted
-        playsinline
-      />
+    <VideoPreview :src="item.videoUrl" muted playsinline>
       <!-- Бейдж лайков -->
       <div
         class="absolute top-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-full shadow flex items-center space-x-1 text-sm"
@@ -19,7 +13,7 @@
         </svg>
         <span class="tabular-nums">{{ item.likes ?? 0 }}</span>
       </div>
-    </div>
+    </VideoPreview>
 
     <div class="p-4">
       <!-- Заголовок -->
@@ -54,10 +48,13 @@
         <span>{{ hasVoted ? 'Ваш голос учтён' : '❤ Проголосовать' }}</span>
       </button>
     </div>
-  </div>
+  </Card>
 </template>
 
 <script setup>
+import Card from './common/Card.vue'
+import VideoPreview from './common/VideoPreview.vue'
+
 defineProps({
   item: {
     type: Object, // { id, title, videoUrl, likes, author?, uploadedAt? }
