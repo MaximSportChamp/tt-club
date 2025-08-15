@@ -46,9 +46,7 @@ const router          = useRouter()
 // Инициализация полей при первом заходе (если нужно)
 onMounted(() => {
   if (userStore.points === undefined) {
-    userStore.points = 0
-    userStore.participated = []
-    userStore.badges = []
+    userStore.setUser({ points: 0, participated: [], badges: [] })
   }
 })
 

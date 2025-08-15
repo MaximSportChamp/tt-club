@@ -151,6 +151,7 @@ const voteUntilText = computed(() => {
 function onUploaded({ videoUrl, title }) {
   // защита на случай наступления дедлайна
   if (ended.value) return
+  if (!userStore.isAuth) return
 
   const challengeId = cid.value
   const userId = userStore.id
