@@ -70,10 +70,10 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, watch } from 'vue'
 import { useChallengeStore } from '@/stores/challenge'
 import { useSubmissionStore } from '@/stores/submission'
-import { isVotingOpen } from '@/utils/vote'
+import { useCountdown } from '@/utils/countdown'
 
 const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
@@ -82,12 +82,6 @@ const submissionStore = useSubmissionStore()
 const challenges = computed(() =>
   challengeStore.challenges ?? challengeStore.items ?? challengeStore.list ?? []
 )
-
-// Тикер для текста «до …»
-const now = ref(Date.now())
-let timer = null
-onMounted(() => { timer = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (timer) clearInterval(timer) })
 
 // Постер
 function posterOf(ch) {
@@ -105,25 +99,26 @@ function likesSum(ch) {
   return list.reduce((acc, s) => acc + (s.likes || 0), 0)
 }
 
-// Текст «до …»
-function voteUntilText(ch) {
-  if (!ch?.voteEndsAt) return ''
-  const endMs = new Date(ch.voteEndsAt).getTime()
-  if (!isFinite(endMs)) return ''
-  const left = Math.max(0, endMs - now.value)
-  if (left === 0) return 'завершено'
+// Для каждого челленджа создаём countdown; храним в Map
+const countdowns = new Map()
+watch(challenges, list => {
+  list.forEach(ch => {
+    if (ch.voteEndsAt && !countdowns.has(ch.id)) {
+      countdowns.set(ch.id, useCountdown(() => ch.voteEndsAt))
+    }
+  })
+}, { immediate: true })
 
-  const d = Math.floor(left / 86400000)
-  const h = Math.floor((left % 86400000) / 3600000)
-  const m = Math.floor((left % 3600000) / 60000)
-  const dateText = new Date(endMs).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
+function voteUntilText(ch) {
+  return countdowns.get(ch.id)?.text.value ?? ''
+}
+function voteEnded(ch) {
+  return countdowns.get(ch.id)?.isOver.value ?? false
 }
 
 // Состояния CTA
 function ctaDisabled(ch) {
-  return !isVotingOpen(ch) || entriesCount(ch) === 0
+  return voteEnded(ch) || entriesCount(ch) === 0
 }
 function ctaClass(ch) {
   return ctaDisabled(ch)
@@ -131,12 +126,12 @@ function ctaClass(ch) {
     : 'bg-blue-600 text-white hover:bg-blue-700'
 }
 function ctaLabel(ch) {
-  if (!isVotingOpen(ch)) return 'Завершено'
+  if (voteEnded(ch)) return 'Завершено'
   if (entriesCount(ch) === 0) return 'Нет работ'
   return 'К голосованию'
 }
 function ctaTitle(ch) {
-  if (!isVotingOpen(ch)) return 'Голосование завершено'
+  if (voteEnded(ch)) return 'Голосование завершено'
   if (entriesCount(ch) === 0) return 'Нет загруженных работ'
   return ''
 }

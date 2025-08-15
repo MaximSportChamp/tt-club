@@ -123,9 +123,9 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { useSubmissionStore } from '@/stores/submission'
-import { isVotingOpen } from '@/utils/vote'
+import { useCountdown } from '@/utils/countdown'
 
 const props = defineProps({
   challenge: { type: Object, required: true },
@@ -150,34 +150,15 @@ const posterSrc = computed(() => {
   return first?.poster || null
 })
 
-/* Таймер «до …» */
-const now = ref(Date.now())
-let t = null
-onMounted(() => { t = setInterval(() => (now.value = Date.now()), 1000) })
-onBeforeUnmount(() => { if (t) clearInterval(t) })
+/* Таймер «до …»: используем утилиту useCountdown */
+const hasDeadline = computed(() => !!props.challenge?.voteEndsAt)
+// text: «до 01.01.2025 · 1д 2ч», isOver: true после завершения
+const { text: deadlineText, isOver } = useCountdown(
+  () => props.challenge?.voteEndsAt
+)
 
-const endMs = computed(() => {
-  const v = props.challenge?.voteEndsAt
-  const ms = v ? new Date(v).getTime() : 0
-  return Number.isFinite(ms) ? ms : 0
-})
-const hasDeadline = computed(() => !!endMs.value)
-const left = computed(() => Math.max(0, endMs.value - now.value))
-const endedByTime = computed(() => hasDeadline.value && left.value === 0)
-
-/* Состояние «завершено» с учётом хелпера */
-const ended = computed(() => !isVotingOpen(props.challenge) || endedByTime.value)
-
-const deadlineText = computed(() => {
-  if (!hasDeadline.value) return ''
-  if (ended.value) return 'завершено'
-  const d = Math.floor(left.value / 86400000)
-  const h = Math.floor((left.value % 86400000) / 3600000)
-  const m = Math.floor((left.value % 3600000) / 60000)
-  const dateText = new Date(endMs.value).toLocaleDateString()
-  const span = (d ? `${d}д ` : '') + `${h}ч ${m}м`
-  return `до ${dateText} · ${span}`
-})
+/* Состояние «завершено» */
+const ended = computed(() => isOver.value)
 
 /* Локальный старт/стоп видео */
 const isPlaying = ref(false)
