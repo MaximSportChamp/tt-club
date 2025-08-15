@@ -5,6 +5,6 @@
 </template>
 
 <script setup>
-import AppContainer from '@/components/AppContainer.vue'
+import AppContainer from '@/components/common/AppContainer.vue'
 </script>
 

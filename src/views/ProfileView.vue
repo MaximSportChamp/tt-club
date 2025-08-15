@@ -35,8 +35,8 @@ import { useSubmissionStore } from '@/stores/submission'
 
 import ProfileHeader   from '@/components/ProfileHeader.vue'
 import StatsBlock      from '@/components/ProfileStats.vue'
-import BadgesCarousel  from '@/components/BadgeCarousel.vue' // оставил ваш путь/имя файла
-import VideoGrid       from '@/components/VideoGrid.vue'
+import BadgesCarousel  from '@/components/common/BadgeCarousel.vue' // оставил ваш путь/имя файла
+import VideoGrid       from '@/components/common/VideoGrid.vue'
 
 const userStore       = useUserStore()
 const challengeStore  = useChallengeStore()
