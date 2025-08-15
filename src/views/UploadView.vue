@@ -114,6 +114,12 @@ const userStore        = useUserStore()
 const submissionStore  = useSubmissionStore()
 const challengeStore   = useChallengeStore()
 
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+if (!isLoggedIn.value) {
+  alert('Пожалуйста, войдите, чтобы загрузить видео')
+  router.replace({ name: 'Home' })
+}
+
 const cid       = computed(() => Number(route.params.id))
 const challenge = computed(() => challengeStore.getById?.(cid.value) || null)
 
@@ -151,6 +157,7 @@ const voteUntilText = computed(() => {
 function onUploaded({ videoUrl, title }) {
   // защита на случай наступления дедлайна
   if (ended.value) return
+  if (!userStore.isAuth) return
 
   const challengeId = cid.value
   const userId = userStore.id

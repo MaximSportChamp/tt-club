@@ -43,12 +43,16 @@ const challengeStore  = useChallengeStore()
 const submissionStore = useSubmissionStore()
 const router          = useRouter()
 
+const isLoggedIn = computed(() => userStore.isLoggedIn)
+if (!isLoggedIn.value) {
+  alert('Пожалуйста, войдите, чтобы просматривать профиль')
+  router.replace({ name: 'Home' })
+}
+
 // Инициализация полей при первом заходе (если нужно)
 onMounted(() => {
   if (userStore.points === undefined) {
-    userStore.points = 0
-    userStore.participated = []
-    userStore.badges = []
+    userStore.setUser({ points: 0, participated: [], badges: [] })
   }
 })
 
@@ -59,7 +63,7 @@ const participatedCount = computed(() =>
 )
 
 const winsCount = computed(() =>
-  (challengeStore.challenges ?? []).filter(c => c.winnerId === user.id).length
+  challengeStore.challenges.filter(c => c.winnerId === user.id).length
 )
 
 /**
@@ -86,7 +90,7 @@ const userVideos = computed(() => {
  */
 function goUpload() {
   const lastFromUser = user.participated?.[user.participated.length - 1]
-  const fallback     = (challengeStore.challenges?.[0]?.id) ?? null
+  const fallback     = challengeStore.challenges[0]?.id ?? null
   const targetId     = lastFromUser ?? fallback
 
   if (targetId) {
