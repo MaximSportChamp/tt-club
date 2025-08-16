@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center space-x-4">
+  <Panel class="flex items-center space-x-4">
     <div
       v-for="(s,i) in steps"
       :key="i"
@@ -7,7 +7,7 @@
     >
       <div
         class="mx-auto w-8 h-8 flex items-center justify-center rounded-full text-white"
-        :class="i+1 === current ? 'bg-blue-600' : 'bg-gray-300'"
+        :class="i+1 === current ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'"
       >
         {{ i+1 }}
       </div>
@@ -15,10 +15,12 @@
         {{ s }}
       </div>
     </div>
-  </div>
+  </Panel>
 </template>
 
 <script setup>
+import Panel from '@/components/common/Panel.vue'
+
 defineProps({
   steps:   { type: Array, required: true },
   current: { type: Number, required: true }

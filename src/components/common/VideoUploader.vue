@@ -1,21 +1,23 @@
 <template>
   <div class="px-4 py-6 max-w-2xl mx-auto">
-    <div class="mb-4 text-sm text-gray-600">
-      <span :class="step === 1 ? 'font-semibold text-gray-800' : ''">1) Выбор видео</span>
+    <div class="mb-4 text-sm text-gray-600 dark:text-gray-300">
+      <span :class="step === 1 ? 'font-semibold text-gray-800 dark:text-white' : ''">1) Выбор видео</span>
       <span class="mx-2">→</span>
-      <span :class="step === 2 ? 'font-semibold text-gray-800' : ''">2) Предпросмотр</span>
+      <span :class="step === 2 ? 'font-semibold text-gray-800 dark:text-white' : ''">2) Предпросмотр</span>
     </div>
 
     <div v-if="step === 1" class="space-y-4">
       <input type="file" accept="video/*" @change="onFile" class="block w-full" />
-      <button
+      <Button
         type="button"
         :disabled="!file"
         @click="step = 2"
-        class="w-full px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+        block
+        aria-label="Далее"
+        tabindex="0"
       >
         Далее
-      </button>
+      </Button>
     </div>
 
     <div v-else class="space-y-4">
@@ -40,21 +42,25 @@
       />
 
       <div class="grid grid-cols-2 gap-3">
-        <button
+        <Button
           type="button"
-          class="px-4 py-2 rounded border bg-white hover:bg-gray-50"
+          class="border bg-white hover:bg-gray-50"
           @click="step = 1"
+          aria-label="Назад"
+          tabindex="0"
         >
           Назад
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+          class="bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
           :disabled="!previewUrl"
           @click="upload"
+          aria-label="Загрузить"
+          tabindex="0"
         >
           Загрузить
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -62,6 +68,7 @@
 
 <script setup>
 import { ref, onBeforeUnmount } from 'vue'
+import Button from '@/components/common/Button.vue'
 
 const emit = defineEmits(['uploaded'])
 

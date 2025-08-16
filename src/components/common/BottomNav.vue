@@ -1,52 +1,59 @@
 <!-- src/components/BottomNav.vue -->
 <template>
   <nav
-    class="fixed inset-x-0 bottom-0 bg-white border-t"
+    class="fixed inset-x-0 bottom-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700"
     style="padding-bottom: env(safe-area-inset-bottom)"
   >
     <div class="px-3 py-2 flex gap-2">
-      <router-link
-        :to="{ name: 'Home' }"
-        class="flex-1 inline-flex items-center justify-center rounded-xl py-2.5 text-sm font-medium border transition"
+      <Button
+        class="flex-1 rounded-xl py-2.5 text-sm font-medium border transition"
         :class="btn('Home')"
-        role="button"
+        aria-label="Челленджи"
         :aria-current="route.name === 'Home' ? 'page' : undefined"
+        tabindex="0"
+        @click="go('Home')"
       >
         Челленджи
-      </router-link>
+      </Button>
 
-      <router-link
-        :to="{ name: 'Votes' }"
-        class="flex-1 inline-flex items-center justify-center rounded-xl py-2.5 text-sm font-medium border transition"
+      <Button
+        class="flex-1 rounded-xl py-2.5 text-sm font-medium border transition"
         :class="btn('Votes')"
-        role="button"
+        aria-label="Голосование"
         :aria-current="route.name === 'Votes' ? 'page' : undefined"
+        tabindex="0"
+        @click="go('Votes')"
       >
         Голосование
-      </router-link>
+      </Button>
 
-      <router-link
-        :to="{ name: 'Profile' }"
-        class="flex-1 inline-flex items-center justify-center rounded-xl py-2.5 text-sm font-medium border transition"
+      <Button
+        class="flex-1 rounded-xl py-2.5 text-sm font-medium border transition"
         :class="btn('Profile')"
-        role="button"
+        aria-label="Профиль"
         :aria-current="route.name === 'Profile' ? 'page' : undefined"
+        tabindex="0"
+        @click="go('Profile')"
       >
         Профиль
-      </router-link>
+      </Button>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import Button from '@/components/common/Button.vue'
+
 const route = useRoute()
+const router = useRouter()
+const go = (name) => router.push({ name })
 
 // Активная — заливка; неактивная — outline
 const btn = (name) =>
   route.name === name
     ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-    : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'
+    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-gray-400'
 </script>
 
 <style scoped>

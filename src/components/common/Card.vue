@@ -1,12 +1,9 @@
 <template>
-  <component :is="tag" class="bg-white rounded-xl shadow" v-bind="$attrs">
+  <Panel class="bg-white dark:bg-gray-800 rounded-xl shadow" v-bind="$attrs">
     <slot />
-  </component>
+  </Panel>
 </template>
 
 <script setup>
-const props = defineProps({
-  tag: { type: String, default: 'div' }
-})
+import Panel from '@/components/common/Panel.vue'
 </script>
-

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 pb-16 flex flex-col">
+  <Panel class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-16 flex flex-col">
     <!-- общий Header -->
     <Header data-app-header />
 
@@ -10,10 +10,11 @@
 
     <!-- общий BottomNav -->
     <BottomNav />
-  </div>
+  </Panel>
 </template>
 
 <script setup>
 import Header    from '@/components/common/Header.vue'
 import BottomNav from '@/components/common/BottomNav.vue'
+import Panel     from '@/components/common/Panel.vue'
 </script>
