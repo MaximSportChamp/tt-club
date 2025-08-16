@@ -1,6 +1,7 @@
 // src/stores/user.js
 
 import { defineStore } from 'pinia'
+import { post, setAuthToken } from '@/utils/api'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -153,21 +154,30 @@ export const useUserStore = defineStore('user', {
 
     /**
      * Входит в систему и сохраняет токен/сессию.
-     * @param {string|null} token
-     * @param {Object} user
+     * @param {Object} credentials
      */
-    login(token, user = {}) {
+    async login(credentials) {
+      const res = await post('/login', credentials)
+      const token = res?.token || null
+      const user = res?.user || {}
       this.token = token
       this.isAuthenticated = true
+      setAuthToken(token)
+      if (token) localStorage.setItem('token', token)
       this.setUser(user)
     },
 
     /**
      * Выход из системы: очищает токен и данные пользователя.
      */
-    logout() {
+    async logout() {
+      try {
+        await post('/logout')
+      } catch {}
       this.token = null
       this.isAuthenticated = false
+      setAuthToken(null)
+      localStorage.removeItem('token')
       this.setUser({
         id: null,
         name: '',

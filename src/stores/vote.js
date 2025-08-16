@@ -1,5 +1,6 @@
 // src/stores/vote.js
 import { defineStore } from 'pinia'
+import { voteVideo } from '@/utils/api'
 
 export const useVotesStore = defineStore('votes', {
   state: () => ({
@@ -40,6 +41,7 @@ export const useVotesStore = defineStore('votes', {
       const arr = this.votesByChallenge[cid] ?? (this.votesByChallenge[cid] = [])
       if (arr.includes(sid)) return false
 
+      voteVideo(sid).catch(() => {})
       arr.push(sid)
       return true
     },
