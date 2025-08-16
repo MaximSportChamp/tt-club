@@ -8,10 +8,20 @@ const STATUS_MESSAGES: Record<number, string> = {
   500: 'Ошибка сервера',
 }
 
+let authToken: string | null = null
+
+export const setAuthToken = (token: string | null) => {
+  authToken = token
+}
+
 async function request<T>(path: string, options: RequestInit, retries: number): Promise<T> {
   const url = BASE_URL + path
+  const headers: Record<string, string> = {
+    ...(options.headers as Record<string, string> | undefined),
+  }
+  if (authToken) headers['Authorization'] = `Bearer ${authToken}`
   try {
-    const res = await fetch(url, options)
+    const res = await fetch(url, { ...options, headers })
     if (!res.ok) {
       const mapped = STATUS_MESSAGES[res.status]
       const message = mapped || (await res.text().catch(() => res.statusText))
