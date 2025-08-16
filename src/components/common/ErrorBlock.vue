@@ -1,9 +1,9 @@
 <template>
-  <div class="p-4 text-center text-red-600">
+  <Panel class="p-4 text-center text-red-600 dark:text-red-400">
     <slot />
-  </div>
+  </Panel>
 </template>
 
 <script setup>
-// no script
+import Panel from '@/components/common/Panel.vue'
 </script>

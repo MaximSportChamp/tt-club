@@ -1,9 +1,9 @@
 <template>
-  <div class="mt-4">
+  <Panel class="mt-4">
     <h3 class="text-lg font-semibold mb-2">Мои видео</h3>
 
     <!-- Пустой список -->
-    <div v-if="!videos?.length" class="text-sm text-gray-500 py-6">
+    <div v-if="!videos?.length" class="text-sm text-gray-500 dark:text-gray-400 py-6">
       Пока нет загруженных видео.
     </div>
 
@@ -13,7 +13,10 @@
         v-for="(v, i) in videos"
         :key="v.id ?? i"
         class="group cursor-pointer"
+        role="button"
+        tabindex="0"
         @click="handleSelect(v)"
+        @keydown.enter="handleSelect(v)"
       >
         <!-- Превью 16:9 -->
         <div class="relative pb-[56.25%] bg-black rounded-lg overflow-hidden">
@@ -42,10 +45,11 @@
         </div>
       </div>
     </div>
-  </div>
+  </Panel>
 </template>
 
 <script setup>
+import Panel from '@/components/common/Panel.vue'
 // Ожидаем массив объектов: { id, title, videoUrl, likes, ... }
 const props = defineProps({
   videos: {
