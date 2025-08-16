@@ -7,7 +7,9 @@ Display conditions:
 -->
 <!-- src/views/VoteView.vue -->
 <template>
-  <section id="vote" class="mt-4">
+  <div v-if="loading">Загрузка...</div>
+  <ErrorBlock v-else-if="error">{{ error }}</ErrorBlock>
+  <section v-else id="vote" class="mt-4">
     <!-- Мини-шапка -->
     <div class="px-4 py-3 border-b bg-gray-50">
       <div class="flex items-center justify-between gap-3">
@@ -135,7 +137,7 @@ Display conditions:
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { useSubmissionStore } from '@/stores/submission'
@@ -147,6 +149,7 @@ import { formatNumber }       from '@/utils/format'
 
 import VoteList from '@/components/VoteList.vue'
 import VideoPreview from '@/components/common/VideoPreview.vue'
+import ErrorBlock from '@/components/common/ErrorBlock.vue'
 
 const route            = useRoute()
 const router           = useRouter()
@@ -155,9 +158,29 @@ const challengeStore   = useChallengeStore()
 const votesStore       = useVotesStore()
 const userStore        = useUserStore()
 
+const loading = ref(true)
+const error = ref('')
+
 const cid        = computed(() => Number(route.params.id))
 const challenge  = computed(() => challengeStore.getById?.(cid.value) || null)
 const entries    = computed(() => submissionStore.byChallenge?.(cid.value) ?? [])
+
+onMounted(async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    if (typeof challengeStore.fetchChallenges === 'function') {
+      await challengeStore.fetchChallenges()
+    }
+    if (typeof submissionStore.fetchForChallenge === 'function') {
+      await submissionStore.fetchForChallenge(cid.value)
+    }
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    loading.value = false
+  }
+})
 
 /* Таймер «до …» в плашке статуса */
 // text: строка для отображения, isOver: флаг завершения

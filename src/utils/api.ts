@@ -1,12 +1,21 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
+const STATUS_MESSAGES: Record<number, string> = {
+  400: 'Некорректный запрос',
+  401: 'Требуется авторизация',
+  403: 'Доступ запрещён',
+  404: 'Не найдено',
+  500: 'Ошибка сервера',
+}
+
 async function request<T>(path: string, options: RequestInit, retries: number): Promise<T> {
   const url = BASE_URL + path
   try {
     const res = await fetch(url, options)
     if (!res.ok) {
-      const message = await res.text().catch(() => res.statusText)
-      const err = new Error(message)
+      const mapped = STATUS_MESSAGES[res.status]
+      const message = mapped || (await res.text().catch(() => res.statusText))
+      const err = new Error(message || res.statusText)
       ;(err as any).status = res.status
       throw err
     }

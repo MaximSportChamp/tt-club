@@ -9,8 +9,10 @@ Display conditions:
 -->
 <!-- src/views/ChallengeDetail.vue -->
 <template>
+  <div v-if="loading">Загрузка...</div>
+  <ErrorBlock v-else-if="error">{{ error }}</ErrorBlock>
   <!-- БЕЗ AppContainer: глобальный контейнер/хедер уже в App.vue -->
-  <div class="py-4">
+  <div v-else class="py-4">
     <button @click="$router.back()" class="mb-4 text-blue-600">&larr; Назад</button>
 
     <!-- Большая карточка челленджа скрывается, когда isCompact === true -->
@@ -102,25 +104,45 @@ Display conditions:
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useChallengeStore }   from '@/stores/challenge'
-import { useSubmissionStore }  from '@/stores/submission'
-import { useCountdown }        from '@/utils/countdown'
+import { useChallengeStore } from '@/stores/challenge'
+import { useSubmissionStore } from '@/stores/submission'
+import { useCountdown } from '@/utils/countdown'
 import Card from '@/components/common/Card.vue'
 import VideoPreview from '@/components/common/VideoPreview.vue'
+import ErrorBlock from '@/components/common/ErrorBlock.vue'
 
-const route  = useRoute()
+const route = useRoute()
 const router = useRouter()
 
-const challengeStore  = useChallengeStore()
+const challengeStore = useChallengeStore()
 const submissionStore = useSubmissionStore()
 
-const c = challengeStore.getById(Number(route.params.id))
+const cid = Number(route.params.id)
+const c = computed(() => challengeStore.getById(cid))
+
+const loading = ref(true)
+const error = ref('')
+
+onMounted(async () => {
+  loading.value = true
+  error.value = ''
+  try {
+    if (typeof challengeStore.fetchChallenges === 'function') {
+      await challengeStore.fetchChallenges()
+    }
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : String(e)
+  } finally {
+    loading.value = false
+  }
+})
 
 // Агрегированные лайки челленджа
 const aggLikes = computed(() => {
-  const list = submissionStore.byChallenge?.(c?.id) ?? []
-  const sum  = list.reduce((acc, s) => acc + (s.likes || 0), 0)
-  return (c?.likes ?? 0) + sum
+  const challenge = c.value
+  const list = submissionStore.byChallenge?.(challenge?.id) ?? []
+  const sum = list.reduce((acc, s) => acc + (s.likes || 0), 0)
+  return (challenge?.likes ?? 0) + sum
 })
 
 // Компактный режим: только на /vote и /upload, если НЕ запросили ?full=1
@@ -152,13 +174,12 @@ function go(tab) {
   if (ended.value) return
   router.push({
     name: tab === 'upload' ? 'ChallengeUpload' : 'ChallengeVote',
-    params: { id: c.id }
+    params: { id: c.value.id },
   })
 }
 
 /* -------- Голосование до ... / «завершено» -------- */
 // text: строка для отображения, isOver: флаг завершения
-const { text: voteUntilText, isOver } = useCountdown(() => c?.voteEndsAt)
+const { text: voteUntilText, isOver } = useCountdown(() => c.value?.voteEndsAt)
 const ended = computed(() => isOver.value)
 </script>
-
