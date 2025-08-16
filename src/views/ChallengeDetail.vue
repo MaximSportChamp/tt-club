@@ -1,3 +1,12 @@
+<!--
+Transitions:
+- To ChallengeUpload via go('upload').
+- To ChallengeVote via go('vote').
+Display conditions:
+- Activated at route '/challenge/:id'.
+- Compact mode when child route is 'vote' or 'upload' without '?full=1'.
+- UploadView renders in sidebar on desktop when isUpload and isDesktop.
+-->
 <!-- src/views/ChallengeDetail.vue -->
 <template>
   <!-- БЕЗ AppContainer: глобальный контейнер/хедер уже в App.vue -->
