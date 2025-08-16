@@ -1,3 +1,9 @@
+<!--
+Transitions:
+- To Home via provided link.
+Display conditions:
+- Shown for any unmatched route.
+-->
 <template>
   <div class="flex flex-col items-center justify-center py-10">
     <h1 class="text-2xl font-bold mb-4">404 - Страница не найдена</h1>

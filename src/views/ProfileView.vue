@@ -1,3 +1,10 @@
+<!--
+Transitions:
+- To ChallengeUpload through goUpload().
+- Redirects to Home when user is not authenticated.
+Display conditions:
+- Route '/profile' requiring logged-in user.
+-->
 <template>
   <!-- без AppContainer, он уже в App.vue -->
   <ProfileHeader />

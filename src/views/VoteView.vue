@@ -1,3 +1,10 @@
+<!--
+Transitions:
+- To ChallengeUpload when user chooses to participate.
+Display conditions:
+- Route '/challenge/:id/vote'.
+- Voting interactions disabled when voting ended or no votes left.
+-->
 <!-- src/views/VoteView.vue -->
 <template>
   <section id="vote" class="mt-4">

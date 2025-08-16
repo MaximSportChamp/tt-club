@@ -1,3 +1,9 @@
+<!--
+Transitions:
+- Back to previous route via $router.back().
+Display conditions:
+- Requires challenge id to load details and participants.
+-->
 <template>
   <div>
     <div class="flex items-center mb-4">

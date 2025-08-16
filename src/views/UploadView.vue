@@ -1,3 +1,10 @@
+<!--
+Transitions:
+- To ChallengeVote via goVote() or after successful upload.
+Display conditions:
+- Route '/challenge/:id/upload' with authenticated user.
+- Upload form available only while voting is open.
+-->
 <!-- src/views/UploadView.vue -->
 <template>
   <section id="upload" class="mt-4">
