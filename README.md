@@ -40,3 +40,13 @@ SENTRY_DSN=
 ```
 
 These values configure database connection, JWT signing, and Sentry reporting.
+
+## CI/CD
+
+GitHub Actions handles continuous integration and deployment:
+
+- On every push or pull request, the workflow installs dependencies and runs `npm run lint` and `npm test`.
+- The frontend is built with `npm run build` and uploaded to `/var/www/tt-club/` on the server.
+- The `backend/` directory is copied to the server, dependencies are installed, database migrations are executed, and the service is started (or restarted) with PM2.
+
+To enable deployments, configure the repository secrets `SERVER_HOST`, `SERVER_USER`, and `SERVER_SSH_KEY` with credentials for the target server.
