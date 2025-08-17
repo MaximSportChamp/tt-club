@@ -7,6 +7,9 @@ import swaggerUi from 'swagger-ui-express';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import pino from 'pino';
+import pinoHttp from 'pino-http';
+import * as Sentry from '@sentry/node';
 
 import users from './routes/users.js';
 import challenges from './routes/challenges.js';
@@ -14,10 +17,14 @@ import votes from './routes/votes.js';
 import media from './routes/media.js';
 
 dotenv.config();
+Sentry.init({ dsn: process.env.SENTRY_DSN || '' });
 
 const db = knex(knexConfig);
 
+const logger = pino();
 const app = express();
+app.use(pinoHttp({ logger }));
+app.use(Sentry.Handlers.requestHandler());
 app.use(cors());
 app.use(express.json());
 
@@ -52,6 +59,8 @@ app.use('/challenges', challenges);
 app.use('/votes', votes);
 app.use('/media', media);
 
+app.use(Sentry.Handlers.errorHandler());
+
 const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: '3.0.0',
@@ -73,5 +82,5 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+  logger.info(`Server running on port ${port}`);
 });
