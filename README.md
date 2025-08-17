@@ -15,3 +15,28 @@ The `src/components/common/` directory contains reusable components shared acros
 
 ## Documentation
 Detailed documentation, including style guides and user scenarios, can be found in [docs/](docs/README.md).
+
+## Environment Variables
+
+### Frontend
+Create a `.env` file in the project root and specify the backend API URL:
+
+```
+VITE_API_BASE_URL=https://tt-club.ru/api
+```
+
+Adjust the URL as needed for your deployment.
+
+### Backend
+Copy `backend/.env.example` to `backend/.env` and provide database credentials and secrets:
+
+```
+DB_HOST=localhost
+DB_USER=postgres
+DB_PASSWORD=password
+DB_NAME=ttclub
+JWT_SECRET=change_me
+SENTRY_DSN=
+```
+
+These values configure database connection, JWT signing, and Sentry reporting.
