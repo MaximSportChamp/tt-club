@@ -22,7 +22,7 @@ Detailed documentation, including style guides and user scenarios, can be found 
 Create a `.env` file in the project root and specify the backend API URL:
 
 ```
-VITE_API_BASE_URL=https://tt-club.ru/api
+VITE_API_BASE_URL=https://stuch.online/api
 ```
 
 Adjust the URL as needed for your deployment.
