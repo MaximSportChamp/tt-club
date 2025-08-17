@@ -14,7 +14,7 @@ Requests requiring authentication must include the header:
 Authorization: Bearer <token>
 ```
 
-Tokens are obtained via the login endpoint.
+Tokens are obtained via the `POST /auth/vk` endpoint using a VK access token.
 
 ## Error Format
 
@@ -31,9 +31,9 @@ Errors follow JSON structure with standard HTTP status codes:
 
 ## Endpoints
 
-### `POST /auth/login`
-- **Description:** Obtain an access token for authenticated requests.
-- **Body:** `{ "username": "string", "password": "string" }`
+### `POST /auth/vk`
+- **Description:** Exchange a VK `access_token` for an API JWT.
+- **Body:** `{ "access_token": "string" }`
 - **Response:** `{ "token": "string" }`
 
 ### `GET /members`

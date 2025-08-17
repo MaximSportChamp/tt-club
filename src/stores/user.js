@@ -5,8 +5,6 @@ import { post, setAuthToken } from '@/utils/api'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
-    // Флаг авторизации пользователя
-    isAuthenticated: false,
     // Уникальный идентификатор пользователя
     id: 1,
 
@@ -153,27 +151,25 @@ export const useUserStore = defineStore('user', {
     },
 
     /**
-     * Входит в систему и сохраняет токен/сессию.
-     * @param {Object} credentials
+     * Авторизация через VK: отправляет VK access_token на сервер,
+     * сохраняет выданный JWT и помечает пользователя как аутентифицированного.
+     * @param {string} accessToken VK access_token
      */
-    async login(credentials) {
-      const res = await post('/login', credentials)
+    async login(accessToken) {
+      const res = await post('/auth/vk', { access_token: accessToken })
       const token = res?.token || null
-      const user = res?.user || {}
-      this.token = token
-      this.isAuthenticated = true
-      setAuthToken(token)
-      if (token) localStorage.setItem('token', token)
-      this.setUser(user)
+      if (token) {
+        this.token = token
+        this.isAuthenticated = true
+        setAuthToken(token)
+        localStorage.setItem('token', token)
+      }
     },
 
     /**
-     * Выход из системы: очищает токен и данные пользователя.
+     * Выход из системы: очищает токен и данные пользователя (серверных вызовов нет).
      */
     async logout() {
-      try {
-        await post('/logout')
-      } catch {}
       this.token = null
       this.isAuthenticated = false
       setAuthToken(null)
